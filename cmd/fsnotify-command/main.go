@@ -28,8 +28,8 @@ type WatchData struct {
 }
 
 var (
-	defaultWatch   = getEnv("INOTIFY_CMD_WATCH", "[]")
-	defaultVerbose = getEnv("INOTIFY_CMD_VERBOSE", "false")
+	defaultWatch   = getEnv("FSNOTIFY_CMD_WATCH", "[]")
+	defaultVerbose = getEnv("FSNOTIFY_CMD_VERBOSE", "false")
 
 	watch   = kingpin.Flag("watch", "Watch data").Short('w').Default(defaultWatch).String()
 	verbose = kingpin.Flag("verbose", "Verbose logs").Short('v').Default(defaultVerbose).Bool()

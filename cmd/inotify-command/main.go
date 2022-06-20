@@ -10,7 +10,7 @@ import (
 
 	"github.com/alecthomas/kingpin"
 	"github.com/google/shlex"
-	"github.com/gurupras/inotifycmd"
+	"github.com/gurupras/fsnotifycmd"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -61,8 +61,8 @@ func main() {
 			command := tokens[0]
 			args := tokens[1:]
 
-			notifyChan := make(chan *inotifycmd.Event)
-			w, err := inotifycmd.Watch(entry.Path, notifyChan)
+			notifyChan := make(chan *fsnotifycmd.Event)
+			w, err := fsnotifycmd.Watch(entry.Path, notifyChan)
 			if err != nil {
 				log.Fatalf("Failed to watch '%v': %v", entry.Path, err)
 			}
@@ -75,7 +75,7 @@ func main() {
 					iChan <- o
 				}
 			}()
-			dChan := inotifycmd.DebounceChan(1*time.Second, iChan)
+			dChan := fsnotifycmd.DebounceChan(1*time.Second, iChan)
 			for range dChan {
 				cmd := exec.Command(command, args...)
 				cmd.Stdout = os.Stdout

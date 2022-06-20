@@ -1,4 +1,4 @@
-package inotifycmd
+package fsnotifycmd
 
 import (
 	"github.com/fsnotify/fsnotify"

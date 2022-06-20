@@ -1,4 +1,4 @@
-module github.com/gurupras/inotifycmd
+module github.com/gurupras/fsnotifycmd
 
 go 1.18
 

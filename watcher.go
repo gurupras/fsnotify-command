@@ -40,19 +40,19 @@ func Watch(path string, notifyChan chan<- *Event) (*Watcher, error) {
 		defer watcher.Close()
 		defer close(notifyChan)
 		for {
-			log.Infof("Checking if we have events\n")
+			log.Infof("Checking if we have events")
 			select {
 			case event, ok := <-watcher.Events:
 				if !ok {
 					return
 				}
-				log.Infof("Attempting to write event into notifyChan\n")
+				log.Infof("Attempting to write event into notifyChan")
 				notifyChan <- &Event{
 					File: event.Name,
 					Op:   event.Op,
 				}
 			case <-result.doneChan:
-				log.Infof("Watcher done\n")
+				log.Infof("Watcher done")
 				return
 			}
 		}

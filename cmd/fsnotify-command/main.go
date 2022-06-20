@@ -80,10 +80,10 @@ func main() {
 				cmd := exec.Command(command, args...)
 				cmd.Stdout = os.Stdout
 				cmd.Stderr = os.Stderr
-				log.Debugf("Running command '%v'\n", entry.Command)
+				log.Debugf("Running command '%v'", entry.Command)
 				err = cmd.Run()
 				if err != nil {
-					log.Errorf("Failed to run command '%v': %v\n", entry.Command, err)
+					log.Errorf("Failed to run command '%v': %v", entry.Command, err)
 				}
 			}
 		}(entry)

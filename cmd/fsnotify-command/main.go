@@ -28,11 +28,15 @@ type WatchData struct {
 }
 
 var (
-	defaultWatch   = getEnv("FSNOTIFY_CMD_WATCH", "[]")
-	defaultVerbose = getEnv("FSNOTIFY_CMD_VERBOSE", "false")
+	defaultWatch         = getEnv("FSNOTIFY_CMD_WATCH", "[]")
+	defaultVerbose       = getEnv("FSNOTIFY_CMD_VERBOSE", "false")
+	defaultRetryCount    = getEnv("FSNOTIFY_CMD_RETRY_COUNT", "0")
+	defaultRetryInterval = getEnv("FSNOTIFY_CMD_RETRY_INTERVAL_MS", "5000")
 
-	watch   = kingpin.Flag("watch", "Watch data").Short('w').Default(defaultWatch).String()
-	verbose = kingpin.Flag("verbose", "Verbose logs").Short('v').Default(defaultVerbose).Bool()
+	watch         = kingpin.Flag("watch", "Watch data").Short('w').Default(defaultWatch).String()
+	verbose       = kingpin.Flag("verbose", "Verbose logs").Short('v').Default(defaultVerbose).Bool()
+	retryCount    = kingpin.Flag("retry-count", "Number of times to retry failed command").Short('r').Default(defaultRetryCount).Int()
+	retryInterval = kingpin.Flag("retry-interval-ms", "Interval between retries in milliseconds").Short('i').Default(defaultRetryInterval).Int()
 )
 
 func main() {
@@ -77,17 +81,30 @@ func main() {
 			}()
 			dChan := fsnotifycmd.DebounceChan(1*time.Second, iChan)
 			for range dChan {
-				cmd := exec.Command(command, args...)
-				cmd.Stdout = os.Stdout
-				cmd.Stderr = os.Stderr
-				log.Debugf("Running command '%v'", entry.Command)
-				err = cmd.Run()
-				if err != nil {
-					log.Errorf("Failed to run command '%v': %v", entry.Command, err)
+				if err := runWithRetry(entry, command, args, *retryCount, *retryInterval); err != nil {
+					log.Errorf("Command '%v' failed after all retries", entry.Command)
 				}
 			}
 		}(entry)
 	}
 
 	wg.Wait()
+}
+
+func runWithRetry(entry *WatchData, command string, args []string, retryCount int, retryInterval int) error {
+	var err error
+	for i := 0; i <= retryCount; i++ {
+		cmd := exec.Command(command, args...)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		log.Debugf("Running command '%v'", entry.Command)
+		err = cmd.Run()
+		if err == nil {
+			break
+		}
+		log.Errorf("Failed to run command '%v': %v", entry.Command, err)
+		time.Sleep(time.Duration(retryInterval) * time.Millisecond)
+		log.Infof("Retrying command '%v' (%d/%d)", entry.Command, i, retryCount)
+	}
+	return err
 }

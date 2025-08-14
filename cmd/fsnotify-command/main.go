@@ -14,6 +14,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+var buildDate string
+
 func getEnv(key, defaultValue string) string {
 	val := os.Getenv(key)
 	if strings.Compare(val, "") == 0 {
@@ -40,6 +42,8 @@ var (
 )
 
 func main() {
+	log.Infof("Build date: %v", buildDate)
+
 	kingpin.Parse()
 	if *verbose {
 		log.SetLevel(log.DebugLevel)

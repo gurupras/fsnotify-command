@@ -32,7 +32,7 @@ type WatchData struct {
 var (
 	defaultWatch         = getEnv("FSNOTIFY_CMD_WATCH", "[]")
 	defaultVerbose       = getEnv("FSNOTIFY_CMD_VERBOSE", "false")
-	defaultRetryCount    = getEnv("FSNOTIFY_CMD_RETRY_COUNT", "0")
+	defaultRetryCount    = getEnv("FSNOTIFY_CMD_RETRY_COUNT", "5")
 	defaultRetryInterval = getEnv("FSNOTIFY_CMD_RETRY_INTERVAL_MS", "5000")
 
 	watch         = kingpin.Flag("watch", "Watch data").Short('w').Default(defaultWatch).String()
